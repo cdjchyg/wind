@@ -142,6 +142,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="actor.h" />
+    <ClInclude Include="mailbox.h" />
+    <ClInclude Include="scheduler.h" />
+    <ClInclude Include="workgroup.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
