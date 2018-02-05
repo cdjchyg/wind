@@ -1,2 +1,4 @@
 client/ToolKit/Library/
 client/ToolKit/Temp/
+tools/compiler/compiler/obj/
+tools/compiler/compiler/bin/
