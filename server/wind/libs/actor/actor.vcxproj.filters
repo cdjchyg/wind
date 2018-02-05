@@ -7,6 +7,9 @@
     <Filter Include="srouce">
       <UniqueIdentifier>{9f1d9dab-a232-460c-aaca-39b9a0ee5a03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{e89c6990-b445-41a6-8088-983e87702398}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="workgroup.h">
@@ -21,5 +24,16 @@
     <ClInclude Include="mailbox.h">
       <Filter>srouce</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\skip_list.h">
+      <Filter>common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\test\main.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\skip_list.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

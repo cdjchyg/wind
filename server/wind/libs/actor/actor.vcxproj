@@ -142,10 +142,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\skip_list.h" />
     <ClInclude Include="actor.h" />
     <ClInclude Include="mailbox.h" />
     <ClInclude Include="scheduler.h" />
     <ClInclude Include="workgroup.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\test\main.cpp" />
+    <ClCompile Include="..\common\skip_list.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
