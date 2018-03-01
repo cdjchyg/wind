@@ -2,3 +2,6 @@ client/ToolKit/Library/
 client/ToolKit/Temp/
 tools/compiler/compiler/bin/
 tools/compiler/compiler/obj/
+*.opensdf
+*.sdf
+*.meta
