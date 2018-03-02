@@ -5,3 +5,4 @@ tools/compiler/compiler/obj/
 *.opensdf
 *.sdf
 *.meta
+tools/cpp_embed_mono/cpp_embed_mono/Debug/
