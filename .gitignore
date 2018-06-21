@@ -8,3 +8,10 @@ tools/compiler/compiler/obj/
 tools/cpp_embed_mono/cpp_embed_mono/Debug/
 learn/csharp/async_await/async_await/obj/
 learn/csharp/async_await/async_await/bin/
+learn/csharp/Orleans/SiloHost3/SiloHost3/obj/
+learn/csharp/Orleans/SiloHost3/SiloHost3/bin/
+learn/csharp/Orleans/SiloHost3/packages/
+learn/csharp/Orleans/SiloHost3/Grains3/obj/
+learn/csharp/Orleans/SiloHost3/GrainInterfaces3/obj/
+learn/csharp/Orleans/SiloHost3/Grains3/bin/
+learn/csharp/Orleans/SiloHost3/GrainInterfaces3/bin/
