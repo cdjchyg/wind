@@ -4,6 +4,9 @@ using Orleans;
 using Orleans.Runtime.Configuration;
 using Orleans.Runtime.Host;
 
+// Orleans download:
+// https://marketplace.visualstudio.com/items?itemName=sbykov.MicrosoftOrleansToolsforVisualStudio
+
 namespace SiloHost3
 {
     /// <summary>
