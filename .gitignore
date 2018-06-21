@@ -15,3 +15,5 @@ learn/csharp/Orleans/SiloHost3/Grains3/obj/
 learn/csharp/Orleans/SiloHost3/GrainInterfaces3/obj/
 learn/csharp/Orleans/SiloHost3/Grains3/bin/
 learn/csharp/Orleans/SiloHost3/GrainInterfaces3/bin/
+learn/csharp/Orleans/SiloHost3/SiloHost3Client/bin/
+learn/csharp/Orleans/SiloHost3/SiloHost3Client/obj/

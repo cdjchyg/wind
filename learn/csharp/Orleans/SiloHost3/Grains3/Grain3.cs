@@ -8,9 +8,12 @@ namespace Grains3
     /// </summary>
     public class Grain3 : Grain, GrainInterfaces3.IGrain3
     {
-        public Task<string> SayHello()
+        private string mText = "I'm From Grain3!";
+        public Task<string> SayHello(string greeting)
         {
-            return Task.FromResult("I'm From Grain3!");
+            var oldText = mText;
+            mText = greeting;
+            return Task.FromResult(oldText);
         }
     }
 }

@@ -24,24 +24,24 @@ namespace SiloHost3
 
             Console.WriteLine("Silo started.");
 
-            // Then configure and connect a client.
-            var clientConfig = ClientConfiguration.LocalhostSilo();
-            var client = new ClientBuilder().UseConfiguration(clientConfig).Build();
-            client.Connect().Wait();
+            //// Then configure and connect a client.
+            //var clientConfig = ClientConfiguration.LocalhostSilo();
+            //var client = new ClientBuilder().UseConfiguration(clientConfig).Build();
+            //client.Connect().Wait();
 
             Console.WriteLine("Client connected.");
 
             //
             // This is the place for your test code.
             //
-            var friend = client.GetGrain<GrainInterfaces3.IGrain3>(0);
-            Console.WriteLine("\n\n{0}\n\n", friend.SayHello().Result);
+            //var friend = client.GetGrain<GrainInterfaces3.IGrain3>(0);
+            //Console.WriteLine("\n\n{0}\n\n", friend.SayHello().Result);
 
             Console.WriteLine("\nPress Enter to terminate...");
             Console.ReadLine();
 
-            // Shut down
-            client.Close();
+            //// Shut down
+            //client.Close();
             silo.ShutdownOrleansSilo();
         }
     }

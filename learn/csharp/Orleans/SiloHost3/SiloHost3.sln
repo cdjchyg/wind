@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrainInterfaces3", "GrainIn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grains3", "Grains3\Grains3.csproj", "{284BCF51-AD2D-4471-A36D-C1C7E453DE17}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiloHost3Client", "SiloHost3Client\SiloHost3Client.csproj", "{7B6D8365-49B9-4D86-B83B-2064F24F9E11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{284BCF51-AD2D-4471-A36D-C1C7E453DE17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{284BCF51-AD2D-4471-A36D-C1C7E453DE17}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{284BCF51-AD2D-4471-A36D-C1C7E453DE17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B6D8365-49B9-4D86-B83B-2064F24F9E11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B6D8365-49B9-4D86-B83B-2064F24F9E11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B6D8365-49B9-4D86-B83B-2064F24F9E11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B6D8365-49B9-4D86-B83B-2064F24F9E11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
