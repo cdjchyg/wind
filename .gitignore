@@ -6,3 +6,5 @@ tools/compiler/compiler/obj/
 *.sdf
 *.meta
 tools/cpp_embed_mono/cpp_embed_mono/Debug/
+learn/csharp/async_await/async_await/obj/
+learn/csharp/async_await/async_await/bin/
