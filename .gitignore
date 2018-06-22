@@ -17,3 +17,9 @@ learn/csharp/Orleans/SiloHost3/Grains3/bin/
 learn/csharp/Orleans/SiloHost3/GrainInterfaces3/bin/
 learn/csharp/Orleans/SiloHost3/SiloHost3Client/bin/
 learn/csharp/Orleans/SiloHost3/SiloHost3Client/obj/
+learn/csharp/Orleans/SiloHost3/communication/EmployeeSiloHost/obj/
+learn/csharp/Orleans/SiloHost3/communication/EmployeeSiloHost/bin/
+learn/csharp/Orleans/SiloHost3/communication/EmployeeGrains/obj/
+learn/csharp/Orleans/SiloHost3/communication/EmployeeGrainInterfaces/obj/
+learn/csharp/Orleans/SiloHost3/communication/EmployeeClient/obj/
+learn/csharp/Orleans/SiloHost3/communication/EmployeeClient/bin/
