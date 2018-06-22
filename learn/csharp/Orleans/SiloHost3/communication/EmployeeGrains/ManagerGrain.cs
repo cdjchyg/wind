@@ -30,7 +30,13 @@ namespace EmployeeGrains
         {
             mReports.Add(employee);
             await employee.SetManager(this);
-            await employee.Greeting(mMe, "welcome to my team!");
+            await employee.Greeting(
+                new GreetingData
+                {
+                    From = this.GetPrimaryKey(),
+                    Message = "Welcome to my team!"
+                }
+                );
             //return Task.CompletedTask;
         }
 

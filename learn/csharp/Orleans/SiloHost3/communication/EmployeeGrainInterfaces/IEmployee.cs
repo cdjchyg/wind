@@ -14,6 +14,6 @@ namespace EmployeeGrainInterfaces
         Task<IManager> GetManager();
         Task SetManager(IManager mgr);
 
-        Task Greeting(IEmployee from, string message);
+        Task Greeting(GreetingData data);
     }
 }
