@@ -38,9 +38,9 @@ namespace Stock
              */
             //mPrice = await GetPriceFromYaoo(stock as string);
             //mData = await GetGraphData(stock as string);//await过后,返回的结果已经是Task unwrapper的结果
-            
-            var price = GetPriceFromYaoo(stock as string);
+
             var data = GetGraphData(stock as string);
+            var price = GetPriceFromYaoo(stock as string);
             await Task.WhenAll(price, data);
             mPrice = price.Result;
             mData = data.Result;
@@ -49,12 +49,14 @@ namespace Stock
         }
 
         async Task<string> GetGraphData(string stock)
+        //Task<string> GetGraphData(string stock)
         {
             Console.WriteLine("GetGraphData Begin");
             //Thread.Sleep(3000);
             //return Task.FromResult("graph data");
 
-            await Task.Factory.StartNew(() => {
+            await Task.Factory.StartNew(() =>
+            {
                 Thread.Sleep(3000);
             });
 
