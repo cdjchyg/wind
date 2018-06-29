@@ -27,3 +27,5 @@ learn/csharp/Orleans/SiloHost3/Interaction/StockSiloHost/obj/
 learn/csharp/Orleans/SiloHost3/Interaction/StockSiloHost/bin/
 learn/csharp/Orleans/SiloHost3/Interaction/Stock.Grains/obj/
 learn/csharp/Orleans/SiloHost3/Interaction/Stock.GrainInterfaces/obj/
+*.db
+tools/catcat/client/client/Debug/

@@ -103,6 +103,11 @@ int inet_bind(INADDR *addr, int port)
     return fd;
 }
 
+bool endpoint_is_same(SOCKADDR a, SOCKADDR b)
+{
+	return a.sin_port == b.sin_port && a.sin_addr.s_addr == b.sin_addr.s_addr;
+}
+
 void inet_to_tun(tundev *tdev)
 {
     SOCKADDR sa;
@@ -137,6 +142,33 @@ void inet_to_tun(tundev *tdev)
         buff[i] ^= EDECRY_MASK;
     }
 
+    // buff[n] = '\0';
+    // cout << "Before:" << buff << endl;
+
+    if(buff[0] == 'g' && buff[1] == 't' && buff[2] == 'o' && buff[3] == 'p' && buff[4] == 'e' && buff[5] == 'n')
+    {
+        tdev->remote = sa;
+        if(n > 6)
+        {
+            int i = 0;
+            for (; i < n - 6; ++i)
+            {
+                buff[i] = buff[6 + i];
+            }
+            buff[i] = '\0';
+        }
+    }
+
+    if(!endpoint_is_same(sa, tdev->remote))
+    {
+        return;
+    }
+
+    // {
+    //     cout << "after:" << buff << endl;
+    //     return;
+    // }
+
     for(;;)
     {
         int ret = tun_write(tunfd, buff, n);
@@ -158,7 +190,7 @@ void inet_to_tun(tundev *tdev)
         }
     }
 
-    tdev->remote = sa;
+   
 }
 
 void tun_to_inet(tundev *tdev)
