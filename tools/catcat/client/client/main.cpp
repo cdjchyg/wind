@@ -1,7 +1,10 @@
 
 #include<iostream>
+#include<list>
+
 #include<boost/bind.hpp>
 #include<boost/asio.hpp>
+#include<boost/asio/windows/stream_handle.hpp>
 
 #include <windows.h>
 #include <iphlpapi.h>
@@ -13,11 +16,76 @@ using namespace boost::asio::ip;
 using namespace std;
 
 #define EDECRY_MASK 128
+#define BUFF_SIZE 1096
 
 #define ADAPTER_KEY "SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
 #define COMPONENT_ID "tap0901"
 #define USERMODEDEVICEDIR "\\\\.\\Global\\"
 #define TAP_WIN_SUFFIX    ".tap"
+
+struct SData
+{
+	SData()
+		:mSize(0)
+		, mData(NULL)
+	{
+
+	}
+	SData(char* buff, int size)
+	{
+		if (!buff || size < 1)
+		{
+			return;
+		}
+		mSize = size;
+		mData = new char[size];
+		strncpy(mData, buff, size);
+	}
+	~SData()
+	{
+		if (mData)
+		{
+			delete mData;
+			mData = NULL;
+		}
+	}
+	int mSize;
+	char* mData;
+
+};
+
+struct SContent
+{
+	SContent(const string& svrip, const short port)
+		: mHand(ioContext)
+		, mSocket(ioContext, udp::endpoint(udp::v4(), 2200))
+		, mSvrEndPoint(ip::address::from_string(svrip), port)
+		, mNetIsSending(false)
+		, mTunIsWriteing(false)
+		, mNetCurSending(NULL)
+		, mTunCurWriting(NULL)
+	{
+
+	}
+
+	windows::stream_handle mHand;
+
+	io_context ioContext;
+	udp::socket mSocket;
+	udp::endpoint mSvrEndPoint;
+
+	char mTunReadBuff[BUFF_SIZE];
+	char mNetReadBuff[BUFF_SIZE];
+
+	list<SData*> mTun2NetList;
+	list<SData*> mNet2TunList;
+
+	SData* mNetCurSending;
+	SData* mTunCurWriting;
+
+	bool mNetIsSending;
+	bool mTunIsWriteing;
+};
 
 
 bool hand_defined(HANDLE handle)
@@ -104,70 +172,179 @@ HANDLE open_tun()
 	return INVALID_HANDLE_VALUE;
 }
 
-class CClientNet
+
+void NetRead(SContent* pCont)
 {
-public:
-	CClientNet(io_context& io_content, const string& svrip, const short port)
-		: mSvrEndPoint(ip::address::from_string(svrip), port)
-		, mSocket(io_content, udp::endpoint(udp::v4(), 2200))
-	{
-		char buff[] = "gtopen";
-		//Send(buff, strlen(buff));
-	}
-
-	void Send(char* buff, int len)
-	{
-		for (int i = 0; i < len; ++i)
-		{
-			buff[i] ^= EDECRY_MASK;
-		}
-
-		mSocket.async_send_to(
-			boost::asio::buffer(buff, len)
-			, mSvrEndPoint
-			, boost::bind(&CClientNet::HandleSendTo, this,
-				boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
+	pCont->mSocket.async_receive_from(boost::asio::buffer(pCont->mNetReadBuff, BUFF_SIZE), pCont->mSvrEndPoint,
+		boost::bind(NetReadHandle, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pCont)
 		);
-	}
+}
 
-	void HandleSendTo(const boost::system::error_code& errorCode,
-		size_t sendLen)
+void NetReadHandle(const boost::system::error_code& errorCode,
+	size_t readLen, SContent* pCont)
+{
+	if (errorCode)
 	{
-		if (errorCode)
-		{
-			cout << "Send to failed:" << errorCode << endl;
-		}
-		else
-		{
-			//cout << "Send to suc:" << sendLen << endl;
-		}
+		cout << "net read to failed:" << errorCode << endl;
+		return;
 	}
 
-private:
-	udp::socket mSocket;
-	udp::endpoint mSvrEndPoint;
-	char mData[1024];
-};
+	TunWrite(pCont, pCont->mNetReadBuff, readLen);
 
+	NetRead(pCont);
+}
 
+void NetSend(SContent* pCont, char* buff, int len)
+{
+	pCont->mTun2NetList.push_back(new SData(buff, len));
+
+	if (!pCont->mNetIsSending)
+	{
+		NetSendNext(pCont);
+	}
+}
+
+void NetSendNext(SContent* pCont)
+{
+	list<SData*>& sendList = pCont->mTun2NetList;
+	if (sendList.size() < 1)
+	{
+		pCont->mNetIsSending = false;
+		return;
+	}
+	pCont->mNetIsSending = true;
+	SData* pData = sendList.front();
+	sendList.pop_front();
+
+	pCont->mNetCurSending = pData;
+
+	for (int i = 0; i < pData->mSize; ++i)
+	{
+		pData->mData[i] ^= EDECRY_MASK;
+	}
+
+	pCont->mSocket.async_send_to(
+		boost::asio::buffer(pData->mData, pData->mSize)
+		, pCont->mSvrEndPoint
+		, boost::bind(NetSendHandle,
+			boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pCont)
+	);
+}
+
+void NetSendHandle(const boost::system::error_code& errorCode,
+	size_t sendLen, SContent* pCon)
+{
+	if (errorCode)
+	{
+		cout << "net Send to failed:" << errorCode << endl;
+		return;
+	}
+
+	delete pCon->mNetCurSending;
+	pCon->mNetCurSending = NULL;
+
+	NetSendNext(pCon);
+}
+
+void HandleTunRead(const boost::system::error_code& errorCode,
+	size_t readLen, SContent* pCont)
+{
+	if (errorCode)
+	{
+		cout << "tun read failed:" << errorCode << endl;
+		return;
+	}
+
+	NetSend(pCont, pCont->mTunReadBuff, readLen);
+
+	TunRead(pCont);
+}
+
+void TunRead(SContent *pCont)
+{
+	pCont->mHand.async_read_some(boost::asio::buffer(pCont->mTunReadBuff, BUFF_SIZE),
+		boost::bind(HandleTunRead, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pCont));
+}
+
+void HandleTunWrite(const boost::system::error_code& errorCode,
+	size_t writeLen, SContent* pCont)
+{
+	if (errorCode)
+	{
+		cout << "tun write failed:" << errorCode << endl;
+		return;
+	}
+
+	delete pCont->mTunCurWriting;
+	pCont->mTunCurWriting = NULL;
+
+	TunWriteNext(pCont);
+}
+
+void TunWrite(SContent* pCont, char* buff, int len)
+{
+	pCont->mNet2TunList.push_back(new SData(pCont->mNetReadBuff, len));
+	if (!pCont->mTunIsWriteing)
+	{
+		TunWriteNext(pCont);
+	}
+}
+
+void TunWriteNext(SContent* pCont)
+{
+	list<SData*>& writeList = pCont->mNet2TunList;
+	if (writeList.size() < 1)
+	{
+		pCont->mTunIsWriteing = false;
+		return;
+	}
+
+	pCont->mTunIsWriteing = true;
+	SData* pData = writeList.front();
+	writeList.pop_front();
+
+	pCont->mTunCurWriting = pData;
+
+	for (int i = 0; i < pData->mSize; ++i)
+	{
+		pData->mData[i] ^= EDECRY_MASK;
+	}
+
+	pCont->mHand.async_write_some(boost::asio::buffer(pData->mData, pData->mSize), 
+		boost::bind(HandleTunWrite, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pCont)
+		);
+}
 
 int main(int argc, char* argv[])
 {
+	SContent content("104.225.145.30", 2205);
 	HANDLE hand = open_tun();
+	if (hand_defined(hand))
+	{
+		cout << "open tun error" << endl;
+		return -1;
+	}
+	content.mHand.assign(hand);
 
-	io_context ioContext;
+	char buff[] = "gtopen";
+	NetSend(&content, buff, sizeof(buff));
+	NetRead(&content);
 
-	CClientNet net(ioContext, "104.225.145.30", 2205);
+	TunRead(&content);
+
+	
+	
+
 	char buff[127];
 	int i = 0;
 	while (1)
 	{
-		ioContext.run_one();
+		content.ioContext.run_one();
 
-		sprintf(buff, "hello world:%d", i++);
-		cout << "send content:" << buff << endl;
-		net.Send(buff, strlen(buff));
-		Sleep(1000);
+		//sprintf(buff, "hello world:%d", i++);
+		//cout << "send content:" << buff << endl;
+		//net.Send(buff, strlen(buff));
+		//Sleep(1000);
 	}
 	return 0;
 }
