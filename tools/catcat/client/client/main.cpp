@@ -7,7 +7,11 @@
 #include<boost/asio/windows/stream_handle.hpp>
 
 #include <windows.h>
+#include <winioctl.h>
 #include <iphlpapi.h>
+
+
+#include "tap-windows.h"
 
 #pragma comment(lib, "iphlpapi.lib")
 
@@ -18,10 +22,7 @@ using namespace std;
 #define EDECRY_MASK 128
 #define BUFF_SIZE 1096
 
-#define ADAPTER_KEY "SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
-#define COMPONENT_ID "tap0901"
-#define USERMODEDEVICEDIR "\\\\.\\Global\\"
-#define TAP_WIN_SUFFIX    ".tap"
+#define COMPONENT_ID "ptun0901"
 
 struct SData
 {
@@ -68,9 +69,8 @@ struct SContent
 
 	}
 
-	windows::stream_handle mHand;
-
 	io_context ioContext;
+	windows::stream_handle mHand;
 	udp::socket mSocket;
 	udp::endpoint mSvrEndPoint;
 
@@ -163,6 +163,30 @@ HANDLE open_tun()
 
 				if (hand_defined(hand))
 				{
+					ULONG info[3];
+					DWORD len;
+					info[0] = info[1] = info[2] = 0;
+					bool res = ::DeviceIoControl(hand, TAP_WIN_IOCTL_GET_VERSION,
+						&info, sizeof(info),
+						&info, sizeof(info), &len, NULL);
+					if (!res)
+					{
+						continue;
+					}
+
+					cout << "tap win v:" << info[0] << '.' << info[1];
+					if (info[2])
+						cout << " (DEBUG)";
+
+					ULONG mtu;
+					res = DeviceIoControl(hand, TAP_WIN_IOCTL_GET_MTU,
+						&mtu, sizeof(mtu),
+						&mtu, sizeof(mtu), &len, NULL);
+					if (!res)
+						continue;
+					cout << "TAP-Windows MTU=" << (int)mtu;
+
+
 					return hand;
 				}
 			}
@@ -172,36 +196,71 @@ HANDLE open_tun()
 	return INVALID_HANDLE_VALUE;
 }
 
+void TunWriteNext(SContent* pCont);
 
-void NetRead(SContent* pCont)
-{
-	pCont->mSocket.async_receive_from(boost::asio::buffer(pCont->mNetReadBuff, BUFF_SIZE), pCont->mSvrEndPoint,
-		boost::bind(NetReadHandle, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pCont)
-		);
-}
-
-void NetReadHandle(const boost::system::error_code& errorCode,
-	size_t readLen, SContent* pCont)
+void HandleTunWrite(const boost::system::error_code& errorCode,
+	size_t writeLen, SContent* pCont)
 {
 	if (errorCode)
 	{
-		cout << "net read to failed:" << errorCode << endl;
+		cout << "tun write failed:" << errorCode << endl;
 		return;
 	}
 
-	TunWrite(pCont, pCont->mNetReadBuff, readLen);
+	delete pCont->mTunCurWriting;
+	pCont->mTunCurWriting = NULL;
 
-	NetRead(pCont);
+	TunWriteNext(pCont);
 }
 
-void NetSend(SContent* pCont, char* buff, int len)
+void TunWriteNext(SContent* pCont)
 {
-	pCont->mTun2NetList.push_back(new SData(buff, len));
-
-	if (!pCont->mNetIsSending)
+	list<SData*>& writeList = pCont->mNet2TunList;
+	if (writeList.size() < 1)
 	{
-		NetSendNext(pCont);
+		pCont->mTunIsWriteing = false;
+		return;
 	}
+
+	pCont->mTunIsWriteing = true;
+	SData* pData = writeList.front();
+	writeList.pop_front();
+
+	pCont->mTunCurWriting = pData;
+
+	for (int i = 0; i < pData->mSize; ++i)
+	{
+		pData->mData[i] ^= EDECRY_MASK;
+	}
+
+	pCont->mHand.async_write_some(boost::asio::buffer(pData->mData, pData->mSize),
+		boost::bind(HandleTunWrite, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pCont)
+	);
+}
+
+void TunWrite(SContent* pCont, char* buff, int len)
+{
+	pCont->mNet2TunList.push_back(new SData(pCont->mNetReadBuff, len));
+	if (!pCont->mTunIsWriteing)
+	{
+		TunWriteNext(pCont);
+	}
+}
+
+void NetSendNext(SContent* pCont);
+void NetSendHandle(const boost::system::error_code& errorCode,
+	size_t sendLen, SContent* pCon)
+{
+	if (errorCode)
+	{
+		cout << "net Send to failed:" << errorCode << endl;
+		return;
+	}
+
+	delete pCon->mNetCurSending;
+	pCon->mNetCurSending = NULL;
+
+	NetSendNext(pCon);
 }
 
 void NetSendNext(SContent* pCont)
@@ -231,21 +290,39 @@ void NetSendNext(SContent* pCont)
 	);
 }
 
-void NetSendHandle(const boost::system::error_code& errorCode,
-	size_t sendLen, SContent* pCon)
+void NetSend(SContent* pCont, char* buff, int len)
+{
+	pCont->mTun2NetList.push_back(new SData(buff, len));
+
+	if (!pCont->mNetIsSending)
+	{
+		NetSendNext(pCont);
+	}
+}
+
+void NetRead(SContent* pCont);
+void NetReadHandle(const boost::system::error_code& errorCode,
+	size_t readLen, SContent* pCont)
 {
 	if (errorCode)
 	{
-		cout << "net Send to failed:" << errorCode << endl;
+		cout << "net read to failed:" << errorCode << endl;
 		return;
 	}
 
-	delete pCon->mNetCurSending;
-	pCon->mNetCurSending = NULL;
+	TunWrite(pCont, pCont->mNetReadBuff, readLen);
 
-	NetSendNext(pCon);
+	NetRead(pCont);
 }
 
+void NetRead(SContent* pCont)
+{
+	pCont->mSocket.async_receive_from(boost::asio::buffer(pCont->mNetReadBuff, BUFF_SIZE), pCont->mSvrEndPoint,
+		boost::bind(NetReadHandle, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pCont)
+	);
+}
+
+void TunRead(SContent *pCont);
 void HandleTunRead(const boost::system::error_code& errorCode,
 	size_t readLen, SContent* pCont)
 {
@@ -266,85 +343,27 @@ void TunRead(SContent *pCont)
 		boost::bind(HandleTunRead, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pCont));
 }
 
-void HandleTunWrite(const boost::system::error_code& errorCode,
-	size_t writeLen, SContent* pCont)
-{
-	if (errorCode)
-	{
-		cout << "tun write failed:" << errorCode << endl;
-		return;
-	}
-
-	delete pCont->mTunCurWriting;
-	pCont->mTunCurWriting = NULL;
-
-	TunWriteNext(pCont);
-}
-
-void TunWrite(SContent* pCont, char* buff, int len)
-{
-	pCont->mNet2TunList.push_back(new SData(pCont->mNetReadBuff, len));
-	if (!pCont->mTunIsWriteing)
-	{
-		TunWriteNext(pCont);
-	}
-}
-
-void TunWriteNext(SContent* pCont)
-{
-	list<SData*>& writeList = pCont->mNet2TunList;
-	if (writeList.size() < 1)
-	{
-		pCont->mTunIsWriteing = false;
-		return;
-	}
-
-	pCont->mTunIsWriteing = true;
-	SData* pData = writeList.front();
-	writeList.pop_front();
-
-	pCont->mTunCurWriting = pData;
-
-	for (int i = 0; i < pData->mSize; ++i)
-	{
-		pData->mData[i] ^= EDECRY_MASK;
-	}
-
-	pCont->mHand.async_write_some(boost::asio::buffer(pData->mData, pData->mSize), 
-		boost::bind(HandleTunWrite, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pCont)
-		);
-}
 
 int main(int argc, char* argv[])
 {
 	SContent content("104.225.145.30", 2205);
 	HANDLE hand = open_tun();
-	if (hand_defined(hand))
+	if (!hand_defined(hand))
 	{
 		cout << "open tun error" << endl;
 		return -1;
 	}
 	content.mHand.assign(hand);
+	TunRead(&content);
 
 	char buff[] = "gtopen";
 	NetSend(&content, buff, sizeof(buff));
 	NetRead(&content);
-
-	TunRead(&content);
-
 	
-	
-
-	char buff[127];
 	int i = 0;
 	while (1)
 	{
 		content.ioContext.run_one();
-
-		//sprintf(buff, "hello world:%d", i++);
-		//cout << "send content:" << buff << endl;
-		//net.Send(buff, strlen(buff));
-		//Sleep(1000);
 	}
 	return 0;
 }

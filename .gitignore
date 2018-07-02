@@ -29,3 +29,4 @@ learn/csharp/Orleans/SiloHost3/Interaction/Stock.Grains/obj/
 learn/csharp/Orleans/SiloHost3/Interaction/Stock.GrainInterfaces/obj/
 *.db
 tools/catcat/client/client/Debug/
+tools/catcat/client/client.VC.VC.opendb
