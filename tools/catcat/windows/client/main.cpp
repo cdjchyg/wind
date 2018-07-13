@@ -346,7 +346,7 @@ void TunRead(SContent *pCont)
 
 int main(int argc, char* argv[])
 {
-	SContent content("104.225.145.30", 2205);
+	SContent content("server_ip", 2205);
 	HANDLE hand = open_tun();
 	if (!hand_defined(hand))
 	{

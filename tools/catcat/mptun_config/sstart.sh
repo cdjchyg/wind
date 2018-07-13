@@ -1,5 +1,5 @@
 killall mptun
-./mptun -i tun0 -p 2200 -v 192.168.0.2 -t 192.168.0.1 -k hyg2015 &
+./mptun -i tun0 -p 2200 -v 192.168.0.2 -t 192.168.0.1 -k secret_key &
 sleep 3 
 iptables -A FORWARD -i tun+ -j ACCEPT
 iptables -A INPUT -i tun+ -j ACCEPT
