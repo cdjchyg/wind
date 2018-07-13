@@ -42,6 +42,7 @@
 #define MAX_COUNT 16384
 /* buffer for reading , must be >= 1500 */
 #define BUFF_SIZE 2000
+#define MAX_RECV_SIZE (BUFF_SIZE - 1)
 #define IP_SIZE 128
 /* 1 hour time diff */
 #define TIME_DIFF 3600
@@ -82,7 +83,7 @@ int g_log = 0;
 //0 rc4 and xor;1 xor
 char xor_magic_1 = 220;
 char xor_magic_2 = 171;
-int g_encryptType = 0;
+// int g_encryptType = 0;
 
 void Log(const char* log)
 {
@@ -256,7 +257,7 @@ mptun_encrypt_impl(const char in[BUFF_SIZE], int sz, char out[BUFF_SIZE], uint64
 static inline int
 mptun_encrypt(char in[BUFF_SIZE], int sz, char out[BUFF_SIZE], uint64_t key, time_t ti) {
 	int retsz = 0;
-	if (g_encryptType == 0)
+	// if (g_encryptType == 0)
 	{
 		if(sz > BUFF_SIZE - 1)
 			return -1;
@@ -265,10 +266,10 @@ mptun_encrypt(char in[BUFF_SIZE], int sz, char out[BUFF_SIZE], uint64_t key, tim
 		memcpy(out + 1, in, sz);
 		retsz = xor_data(out, sz + 1, xor_magic_1, xor_magic_2);
 	}
-	else
-	{
-		retsz =  mptun_encrypt_impl(in, sz, out, key, ti);
-	}
+	// else
+	// {
+	// 	retsz =  mptun_encrypt_impl(in, sz, out, key, ti);
+	// }
 
 	return retsz;
 }
@@ -309,7 +310,7 @@ mptun_decrypt_impl(char in[BUFF_SIZE], int sz, char out[BUFF_SIZE], uint64_t key
 static inline int
 mptun_decrypt(char in[BUFF_SIZE], int sz, char out[BUFF_SIZE], uint64_t key, time_t ti) {
 	int retsz = 0;
-	if (g_encryptType == 0)
+	// if (g_encryptType == 0)
 	{
 		retsz = xor_data(in, sz, xor_magic_2, xor_magic_1);
 		
@@ -321,10 +322,10 @@ mptun_decrypt(char in[BUFF_SIZE], int sz, char out[BUFF_SIZE], uint64_t key, tim
 
 		memcpy(out, in + 1, retsz);
 	}
-	else
-	{
-		retsz =  mptun_decrypt_impl(in, sz, out, key, ti);
-	}
+	// else
+	// {
+	// 	retsz =  mptun_decrypt_impl(in, sz, out, key, ti);
+	// }
 
 	return retsz;
 }
@@ -746,7 +747,7 @@ tun_to_inet(struct tundev *tdev, fd_set *wt) {
 	char buf[BUFF_SIZE], outbuf[BUFF_SIZE];
 	ssize_t n;
 	for (;;) {
-		n = tun_read(tunfd, buf, BUFF_SIZE);
+		n = tun_read(tunfd, buf, MAX_RECV_SIZE);
 		if (n < 0) {
 			if (errno == EINTR) {
 				continue;
@@ -961,9 +962,9 @@ main(int argc, char *argv[]) {
 		case 'd':
 			g_log = 1;
 			break;
-		case 'e':
-			g_encryptType = atoi(optarg);
-			break;
+		// case 'e':
+		// 	g_encryptType = atoi(optarg);
+		// 	break;
 		default:
 			usage();
 			break;

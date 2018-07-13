@@ -22,7 +22,9 @@ import android.widget.Toast;
 public class ToyVpnService extends VpnService implements Runnable, Handler.Callback {
 
     private static final String TAG = "ToyVpnService";
+    private static final int HEADER_LEN = 1;
     private static final int BUFF_SIZE = 2000;
+    private static final int MAX_RECV_SIZE = BUFF_SIZE - HEADER_LEN;
 
     private static final byte XOR_MAGIC_1 = (byte)220;
     private static final byte XOR_MAGIC_2 = (byte)171;
@@ -33,6 +35,7 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
 
     private String mServerAddress;
     private String mServerPort;
+    private int     mMTU;
 
     //private PendingIntent mConfigureIntent;
 
@@ -53,6 +56,9 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
         String prefix = getPackageName();
         mServerAddress = intent.getStringExtra(prefix + ".ADDRESS");
         mServerPort = intent.getStringExtra(prefix + ".PORT");
+        mMTU = Integer.parseInt(intent.getStringExtra(prefix + ".MTU"));
+        if (mMTU < 1 )
+            mMTU = 1470;
 
         mThread = new Thread(this, "ToyVpnThread");
         mThread.start();
@@ -95,7 +101,8 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
         }
 
         Builder builder = new Builder();
-        builder.setMtu(1500);
+        //builder.setMtu(1500);//1472,548
+        builder.setMtu(mMTU);
         builder.addAddress("192.168.0.1", 32);
         builder.addRoute("0.0.0.0", 0);
         builder.addDnsServer("8.8.8.8");
@@ -128,8 +135,9 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
 
     @Override
     public synchronized void run() {
-        Log.i(TAG, "Starting");
-
+        Log.i(TAG, "VPN thread starting");
+        String setpRecord = "";
+        DatagramChannel socket = null;
         try {
 
             int port = Integer.parseInt(mServerPort);
@@ -137,15 +145,17 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
             InetSocketAddress server = new InetSocketAddress(
                     mServerAddress, port);
 
-            DatagramChannel socket = DatagramChannel.open();
+            socket = DatagramChannel.open();
             if(!protect(socket.socket()))
             {
                 throw new IllegalStateException("Cannot protect the tunnel");
             }
+            setpRecord = "build socket success";
             socket.connect(server);
             socket.configureBlocking(false);
 
             openTun();
+            setpRecord = "open tun success";
             FileInputStream in = new FileInputStream(mTun.getFileDescriptor());
             FileOutputStream out = new FileOutputStream(mTun.getFileDescriptor());
 
@@ -156,8 +166,8 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
 
                 boolean idle = true;
 
-                int length = in.read(packet.array());
-                if (length > 0 && length < BUFF_SIZE)
+                int length = in.read(packet.array(), 0, MAX_RECV_SIZE);
+                if (length > 0)
                 {
                     idle = false;
                     byte[] packetArray = packet.array();
@@ -167,9 +177,12 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
                     System.arraycopy(packetArray, 0, outPacketArray, 1, length);
                     ++length;
 
-                    xorData(outPacketArray, length, XOR_MAGIC_1, XOR_MAGIC_2);
+//                    if (length > 1400)
+//                        Log.i(TAG, "send data Len:" + length);
 
+                    xorData(outPacketArray, length, XOR_MAGIC_1, XOR_MAGIC_2);
                     outPacket.limit(length);
+                    setpRecord = "Begin tun to net write";
                     socket.write(outPacket);
                     packet.clear();
                     outPacket.clear();
@@ -182,9 +195,19 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
                     byte[] packetArray = packet.array();
                     xorData(packetArray, length, XOR_MAGIC_2, XOR_MAGIC_1);
                     --length;
-                    if(length > 0 && packetArray[0] == xorHead(packetArray , 1, length))
+                    if(length > 0)
                     {
-                        out.write(packetArray, 1, length);
+                        if(packetArray[0] == xorHead(packetArray , 1, length)) {
+//                            if (length > 1400)
+//                                Log.i(TAG, "write tun Len:" + length);
+
+                            setpRecord = "Begin net to tun write";
+                            out.write(packetArray, 1, length);
+                        }
+                        else
+                        {
+                            Log.i(TAG, "Data Decrpty error!");
+                        }
                     }
                     packet.clear();
                 }
@@ -198,12 +221,21 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
         catch (Exception e)
         {
             Message msg = mHandler.obtainMessage();
-            msg.obj = e.toString();
+            msg.obj = setpRecord + " Exce:" + e.toString();
             mHandler.sendMessage(msg);
         }
         finally
         {
+            if(socket != null)
+            {
+                try {
+                    socket.close();
+                }catch (Exception e)
+                {
 
+                }
+                socket = null;
+            }
         }
     }
 }

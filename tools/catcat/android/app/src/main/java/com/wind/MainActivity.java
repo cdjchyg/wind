@@ -15,6 +15,7 @@ public class MainActivity extends Activity implements View.OnClickListener  {
 
     private TextView mServerAddress;
     private TextView mServerPort;
+    private TextView mMTU;
 	private String mServerIP = "";
 
     @Override
@@ -24,9 +25,11 @@ public class MainActivity extends Activity implements View.OnClickListener  {
 
         mServerAddress = (TextView)findViewById(R.id.address);
         mServerPort = (TextView)findViewById(R.id.port);
+        mMTU = (TextView)findViewById(R.id.mtu);
 
         mServerAddress.setText(mServerIP);
         mServerPort.setText("2200");
+        mMTU.setText("1470");
 
         findViewById(R.id.connect).setOnClickListener(this);
         findViewById(R.id.stop).setOnClickListener(this);
@@ -63,6 +66,7 @@ public class MainActivity extends Activity implements View.OnClickListener  {
             Intent intent = new Intent(this, ToyVpnService.class);
             intent.putExtra(prefix + ".ADDRESS", mServerAddress.getText().toString());
             intent.putExtra(prefix + ".PORT", mServerPort.getText().toString());
+            intent.putExtra(prefix + ".MTU", mMTU.getText().toString());
             startService(intent);
         }
     }

@@ -13,6 +13,9 @@
         <TextView style="@style/item" android:text="@string/port"/>
         <EditText style="@style/item" android:id="@+id/port"/>
 
+        <TextView style="@style/item" android:text="MTU(548,1472,1500)-1"/>
+        <EditText style="@style/item" android:id="@+id/mtu"/>
+
         <Button style="@style/item" android:id="@+id/connect" android:text="@string/connect"/>
         <Button style="@style/item" android:id="@+id/stop" android:text="stop service!"/>
 
