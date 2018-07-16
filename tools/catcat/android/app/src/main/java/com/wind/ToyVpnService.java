@@ -68,6 +68,11 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
 
     @Override
     public void onDestroy() {
+        CloseDevice();
+    }
+
+    private void CloseDevice()
+    {
         try {
             if (mThread != null) {
                 mThread.interrupt();
@@ -76,7 +81,7 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
             if(mTun != null)
             {
 
-                    mTun.close();
+                mTun.close();
 
                 mTun = null;
             }
@@ -84,6 +89,7 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
             e.printStackTrace();
         }
     }
+
 
     public boolean handleMessage(Message message) {
         if (message != null && message.obj != null) {
@@ -134,7 +140,17 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
     }
 
     @Override
-    public synchronized void run() {
+    public synchronized void run()
+    {
+        //while (true)
+        {
+            RunOnce();
+            CloseDevice();
+        }
+    }
+
+
+    void RunOnce() {
         Log.i(TAG, "VPN thread starting");
         String setpRecord = "";
         DatagramChannel socket = null;

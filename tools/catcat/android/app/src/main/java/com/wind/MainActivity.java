@@ -1,5 +1,7 @@
 package com.wind;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Activity;
 
@@ -16,7 +18,6 @@ public class MainActivity extends Activity implements View.OnClickListener  {
     private TextView mServerAddress;
     private TextView mServerPort;
     private TextView mMTU;
-	private String mServerIP = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,13 +28,27 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         mServerPort = (TextView)findViewById(R.id.port);
         mMTU = (TextView)findViewById(R.id.mtu);
 
-        mServerAddress.setText(mServerIP);
-        mServerPort.setText("2200");
-        mMTU.setText("1470");
-
         findViewById(R.id.connect).setOnClickListener(this);
         findViewById(R.id.stop).setOnClickListener(this);
 
+        SharedPreferences pref = getSharedPreferences("setting", Context.MODE_PRIVATE);
+        String serverip = pref.getString("serverip", "");
+        String serverport = pref.getString("serverport", "2200");
+        String mtu = pref.getString("mtu", "547");
+
+        mServerAddress.setText(serverip);
+        mServerPort.setText(serverport);
+        mMTU.setText(mtu);
+    }
+
+    private void SaveConfig()
+    {
+        SharedPreferences pref = getSharedPreferences("setting", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("serverip", mServerAddress.getText().toString());
+        editor.putString("serverport", mServerPort.getText().toString());
+        editor.putString("mtu", mMTU.getText().toString());
+        editor.commit();
     }
 
     @Override
@@ -62,6 +77,8 @@ public class MainActivity extends Activity implements View.OnClickListener  {
     {
         if(result == RESULT_OK)
         {
+            SaveConfig();
+
             String prefix = getPackageName();
             Intent intent = new Intent(this, ToyVpnService.class);
             intent.putExtra(prefix + ".ADDRESS", mServerAddress.getText().toString());
