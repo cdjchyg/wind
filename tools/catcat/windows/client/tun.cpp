@@ -176,8 +176,8 @@ bool adapter_config(HANDLE handle, ULONG& adapterIndex, string serverip)
 	//if (CmdRun("netsh interface ip add route " + serverip + "/32 11 192.168.55.1 store=active") < 0)
 	//	return false;
 
-	if (CmdRun("netsh interface ip add dnsservers " + index + " 8.8.8.8") < 0)
-		return false;
+	//if (CmdRun("netsh interface ip add dnsservers " + index + " 8.8.8.8") < 0)
+	//	return false;
 
 	//if (CmdRun("ipconfig /flushdns") < 0)
 	//	return false;

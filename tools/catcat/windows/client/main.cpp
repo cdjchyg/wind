@@ -72,6 +72,8 @@ void TunRead(SContent *pCont)
 }
 
 
+// tap-win������ݣ�linux tun�޷�ֱ�Ӵ����д��tun��ʱ�򱨴��
+
 int main(int argc, char* argv[])
 {
 	string serverip = "";
