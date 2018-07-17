@@ -30,3 +30,5 @@ learn/csharp/Orleans/SiloHost3/Interaction/Stock.GrainInterfaces/obj/
 *.db
 tools/catcat/client/client/Debug/
 tools/catcat/client/client.VC.VC.opendb
+tools/catcat/windows/client/x64/Debug/
+tools/catcat/windows/client.VC.VC.opendb
