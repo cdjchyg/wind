@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{716265a4-710e-4a20-afec-d43e104a6983}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\algorithms">
+      <UniqueIdentifier>{a4bba452-2fc7-449d-b62e-09c38074396b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\geometry">
+      <UniqueIdentifier>{ec379b0c-0e59-4759-97fc-4f14b07eb6ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\geometry\spatial_indexes">
+      <UniqueIdentifier>{5178ab45-893f-4dad-b618-1bf1c491e9f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\asio">
+      <UniqueIdentifier>{5e0e30d7-18d4-4d6f-be96-c7b19a1acf68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\coroutine">
+      <UniqueIdentifier>{232180a3-396c-4b63-b766-fcb04240ef88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\asio\server4">
+      <UniqueIdentifier>{68a19694-858f-4958-8116-491b03562373}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lockfree">
+      <UniqueIdentifier>{14eb27c3-3c41-428d-99a8-9339da90d882}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="all_of.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="any_of.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="clamp.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="equal.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="gather.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="hex.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="is_palindrome.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="is_partitioned_until.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="is_sorted.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="mismatch.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="none_of.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="one_of.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="searching.cpp">
+      <Filter>src\algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="foreach.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="quick_start.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="index_quick_start.cpp">
+      <Filter>src\geometry\spatial_indexes</Filter>
+    </ClCompile>
+    <ClCompile Include="asio\spawn_echo_server.cpp">
+      <Filter>src\asio</Filter>
+    </ClCompile>
+    <ClCompile Include="asio\blocking_tcp_echo_client.cpp">
+      <Filter>src\asio</Filter>
+    </ClCompile>
+    <ClCompile Include="coroutine_push_type.cpp">
+      <Filter>src\coroutine</Filter>
+    </ClCompile>
+    <ClCompile Include="stackless_coroutine.cpp">
+      <Filter>src\coroutine</Filter>
+    </ClCompile>
+    <ClCompile Include="asio\server4\file_handler.cpp">
+      <Filter>src\asio\server4</Filter>
+    </ClCompile>
+    <ClCompile Include="asio\server4\mime_types.cpp">
+      <Filter>src\asio\server4</Filter>
+    </ClCompile>
+    <ClCompile Include="asio\server4\reply.cpp">
+      <Filter>src\asio\server4</Filter>
+    </ClCompile>
+    <ClCompile Include="asio\server4\request_parser.cpp">
+      <Filter>src\asio\server4</Filter>
+    </ClCompile>
+    <ClCompile Include="asio\server4\server.cpp">
+      <Filter>src\asio\server4</Filter>
+    </ClCompile>
+    <ClCompile Include="asio\server4\main_server4.cpp">
+      <Filter>src\asio\server4</Filter>
+    </ClCompile>
+    <ClCompile Include="lockfree_queue.cpp">
+      <Filter>src\lockfree</Filter>
+    </ClCompile>
+    <ClCompile Include="format.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="asio\server4\file_handler.hpp">
+      <Filter>src\asio\server4</Filter>
+    </ClInclude>
+    <ClInclude Include="asio\server4\header.hpp">
+      <Filter>src\asio\server4</Filter>
+    </ClInclude>
+    <ClInclude Include="asio\server4\mime_types.hpp">
+      <Filter>src\asio\server4</Filter>
+    </ClInclude>
+    <ClInclude Include="asio\server4\reply.hpp">
+      <Filter>src\asio\server4</Filter>
+    </ClInclude>
+    <ClInclude Include="asio\server4\request.hpp">
+      <Filter>src\asio\server4</Filter>
+    </ClInclude>
+    <ClInclude Include="asio\server4\request_parser.hpp">
+      <Filter>src\asio\server4</Filter>
+    </ClInclude>
+    <ClInclude Include="asio\server4\server.hpp">
+      <Filter>src\asio\server4</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

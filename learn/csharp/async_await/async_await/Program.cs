@@ -34,6 +34,11 @@ namespace async_await
                 Thread.Sleep(500);
                 Console.WriteLine("Thread end!"); 
             } );
+
+            /*
+                await 执行结束过后，是后台工作线程继续该函数的执行
+             */
+
             Console.WriteLine("asyncFunc end! " + i.ToString());
         }
     }

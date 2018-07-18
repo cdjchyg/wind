@@ -72,11 +72,11 @@ void TunRead(SContent *pCont)
 }
 
 
-// tap-winï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½linux tunï¿½Þ·ï¿½Ö±ï¿½Ó´ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½tunï¿½ï¿½Ê±ï¿½ò±¨´ï¿½ï¿½
+// tap-winÊä³öÊý¾Ý£¬linux tunÎÞ·¨Ö±½Ó´¦Àí£¬Ð´ÈëtunµÄÊ±ºò±¨´í¡£
 
 int main(int argc, char* argv[])
 {
-	string serverip = "";
+	string serverip = "104.225.145.30";
 	SContent content(serverip, 2200);
 	ULONG index = -1;
 	HANDLE hand = open_tun(index);

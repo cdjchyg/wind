@@ -32,3 +32,5 @@ tools/catcat/client/client/Debug/
 tools/catcat/client/client.VC.VC.opendb
 tools/catcat/windows/client/x64/Debug/
 tools/catcat/windows/client.VC.VC.opendb
+learn/boost_trainning/trainning/trainning/Debug/
+*.opendb
