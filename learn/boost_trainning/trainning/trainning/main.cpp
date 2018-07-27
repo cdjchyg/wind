@@ -24,8 +24,8 @@
 
 //#include "stackless_coroutine.cpp"
 
-//#include "lockfree_queue.cpp"
-#include "format.cpp"
+#include "lockfree_queue.cpp"
+//#include "format.cpp"
 
 int main()
 {
