@@ -3,6 +3,9 @@
 //https://www.cnblogs.com/xuqiang/archive/2011/05/22/2053516.html
 
 #include <functional>
+#include <cmath>
+
+// TODO Òì³£´¦Àí
 
 namespace wind
 {
@@ -36,7 +39,7 @@ namespace wind
 			SListStruct()
 				:mLevel(0)
 			{
-				mHeader = new SNodeStruct();
+				//mHeader = new SNodeStruct();
 			}
 			~SListStruct()
 			{
@@ -51,10 +54,11 @@ namespace wind
 			PNodeStruct	mHeader;
 		};
 		typedef SListStruct* PListStruct;
-
+	public:
 		CSkipList()
+			:mList(NULL)
 		{
-			Init();
+			mList = new SListStruct();
 		}
 		~CSkipList
 		{
@@ -65,25 +69,117 @@ namespace wind
 			}
 		}
 
-		void Init()
+		void Add(KeyType& key, ValueType& value)
 		{
-			mList = new SListStruct;
-		}
+			if (mList->mHeader == NULL)
+			{
+				PNodeStruct pNode = new SNodeStruct();
+				pNode->mKey = key;
+				pNode->mValue = value;
+				mList->mHeader = pNode;
+				return;
+			}
 
-		void Add()
-		{
+			PNodeStruct p = mList->mHeader;
+			PNodeStruct q = NULL;
+			PNodeStruct update[MAXLEVEL];
+			int k = mList->mLevel;
+			do
+			{
 
+				while (q = p->mForward[k], q->mKey < key)
+				{
+					p = q;
+				}
+
+				update[k] = p;
+
+			} while (--k >= 0);
+
+			if (q->mKey == key)
+			{
+				q->mValue = value;
+				return;
+			}
+
+			k = RandomLevel();
+			if (k > mList->mLevel)
+			{
+				k = ++mList->mLevel;
+			}
+
+			q = new SNodeStruct;
+			q->mKey = key;
+			q->mValue = value;
+
+			do
+			{
+				p = update[k];
+				q->mForward[k] = p->mForward[k];
+				p->mForward[k] = q;
+			} while (--k >= 0);
 		}
 
 		void Remove(KeyType& key)
 		{
+			PNodeStruct update[MAXLEVEL];
+			PNodeStruct p = mList->mHeader;
+			PNodeStruct q = NULL;
+			int k = mList->mLevel;
+			int m = k;
 
+			do
+			{
+				while (q = p->mForward[k], q->mKey < mKey)
+				{
+					p = q;
+				}
+				update[k] = p;
+			} while (--k >= 0);
+
+			if (q->mKey != key)
+			{
+				return;
+			}
+
+			for (k = 0; k <= m && (p= update[k])->mForward[k] == q; ++k)
+			{
+				p->mForward[k] = q->mForward[k];
+			}
+			delete q;
+
+			while(mList->mHeader->mForward[m] == NULL && m > 0)
+			{
+				--m;
+			}
+			mList->mLevel = m;
 		}
 
 
 		ValueType* Find(KeyType& key)
 		{
+			int k = mList->mLevel;
+			PNodeStruct p = mList->mHeader;
+			PNodeStruct q = NULL;
 
+			do
+			{
+				while (q = p->mForward[k], q->mKey < key)
+				{
+					p = q;
+				}
+			} while (--k >= 0);
+
+			if (q->mKey != key)
+				return NULL;
+			else
+				return &q->mValue;
+		}
+
+	private:
+		int RandomLevel()
+		{
+			return rand() % MAXLEVEL;
 		}
 
 		PListStruct mList;

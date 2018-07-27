@@ -32,8 +32,5 @@
     <ClCompile Include="..\..\test\main.cpp">
       <Filter>test</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\skip_list.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

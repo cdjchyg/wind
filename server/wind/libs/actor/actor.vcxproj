@@ -150,7 +150,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\test\main.cpp" />
-    <ClCompile Include="..\common\skip_list.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
