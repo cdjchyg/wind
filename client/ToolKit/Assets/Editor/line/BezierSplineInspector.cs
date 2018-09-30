@@ -102,37 +102,51 @@ public class BezierSplineInspector : Editor
             spline.Loop = loop;
         }
 
-        if (selectedIndex >= 0 && selectedIndex < spline.ControlPointCount)
+        //if (selectedIndex >= 0 && selectedIndex < spline.ControlPointCount)
+        //{
+        //    DrawSelectedPointInspector(selectedIndex);
+        //}
+
+        for (int i = 1; i < spline.ControlPointCount; ++i)
         {
-            DrawSelectedPointInspector();
+            DrawSelectedPointInspector(i);
         }
-        if (GUILayout.Button("Add Curve"))
+
+            if (GUILayout.Button("Add Curve"))
         {
             Undo.RecordObject(spline, "Add Curve");
             spline.AddCurve();
             EditorUtility.SetDirty(spline);
         }
+
+        if(GUILayout.Button("Apply"))
+        {
+            spline.CalcAllCurveLenght();
+        }
     }
 
-    private void DrawSelectedPointInspector()
+    private void DrawSelectedPointInspector(int index)
     {
-        GUILayout.Label("Selected Point");
+        GUILayout.Label("\n-------------Point " + index);
         EditorGUI.BeginChangeCheck();
-        Vector3 point = EditorGUILayout.Vector3Field("Position", spline.GetControlPoint(selectedIndex));
+        Vector3 point = EditorGUILayout.Vector3Field("Position", spline.GetControlPoint(index));
         if (EditorGUI.EndChangeCheck())
         {
             Undo.RecordObject(spline, "Move Point");
             EditorUtility.SetDirty(spline);
-            spline.SetControlPoint(selectedIndex, point);
+            spline.SetControlPoint(index, point);
         }
         EditorGUI.BeginChangeCheck();
+
         BezierControlPointMode mode = (BezierControlPointMode)
-            EditorGUILayout.EnumPopup("Mode", spline.GetControlPointMode(selectedIndex));
+            EditorGUILayout.EnumPopup("Mode", spline.GetControlPointMode(index));
         if (EditorGUI.EndChangeCheck())
         {
             Undo.RecordObject(spline, "Change Point Mode");
-            spline.SetControlPointMode(selectedIndex, mode);
+            spline.SetControlPointMode(index, mode);
             EditorUtility.SetDirty(spline);
         }
+
+        
     }
 }

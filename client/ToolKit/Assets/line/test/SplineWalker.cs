@@ -6,9 +6,13 @@ public class SplineWalker : MonoBehaviour {
 
     public BezierSpline spline;
 
-    public float duration;
+    //public float duration;
+    public float speed = 5;
+
+    public bool isSecond = false;
 
     private float progress;
+    private float totalLenght;
 
     public enum SplineWalkerMode
     {
@@ -23,7 +27,7 @@ public class SplineWalker : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
+        /*
         if (goingForward)
         {
             progress += Time.deltaTime / duration;
@@ -59,5 +63,15 @@ public class SplineWalker : MonoBehaviour {
         transform.localPosition = position;
 
         transform.LookAt(position + spline.GetDirection(progress));
-	}
+        */
+
+        spline.isSecond = isSecond;
+
+        totalLenght += Time.deltaTime * speed;
+        Vector3 point = Vector3.zero, dirction = Vector3.zero;
+        spline.GetPointByLenght(ref point, ref dirction, totalLenght) ;
+        transform.localPosition = point;
+
+        transform.LookAt(point + dirction);
+    }
 }

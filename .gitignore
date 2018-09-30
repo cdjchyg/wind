@@ -34,3 +34,6 @@ tools/catcat/windows/client/x64/Debug/
 tools/catcat/windows/client.VC.VC.opendb
 learn/boost_trainning/trainning/trainning/Debug/
 *.opendb
+client/ToolKit/.vs/
+client/ToolKit/ToolKit.csproj
+client/ToolKit/ToolKit.Editor.csproj
