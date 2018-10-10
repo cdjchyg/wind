@@ -64,7 +64,7 @@ public class HermiteSpline : MonoBehaviour
             {
                 Vector3 lineEnd = Hermite.GetPoint(p0, p1, p2, p3, index / (float)lineStep, tension, bias);
                 Gizmos.DrawLine(lineStart, lineEnd);
-                //lineStart = lineEnd;
+                lineStart = lineEnd;
             }
         }
     }
