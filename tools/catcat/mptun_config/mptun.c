@@ -81,15 +81,26 @@ struct rc4_sbox {
 int g_log = 0;
 
 //0 rc4 and xor;1 xor
-char xor_magic_1 = 220;
-char xor_magic_2 = 171;
+char xor_magic_1 = 120;
+char xor_magic_2 = 71;
 // int g_encryptType = 0;
+
+FILE *logFP = NULL;
 
 void Log(const char* log)
 {
-	if(g_log > 0)
+	if(logFP != NULL && g_log > 0)
 	{
-		perror(log);
+		//perror(log);
+		char buff[256];
+		time_t t;
+		time(&t);
+		struct tm *tm_ = localtime(&t);
+		sprintf(buff, "%04d-%02d-%02d %02d:%02d:%02d:	", tm_->tm_year + 1900, tm_->tm_mon + 1, tm_->tm_mday, tm_->tm_hour, tm_->tm_min, tm_->tm_sec);
+		fputs(buff, logFP);
+		fputs(log, logFP);
+		fputs("\n", logFP);
+		fflush(logFP);
 	}
 }
 
@@ -632,6 +643,7 @@ inet_to_tun(struct tundev *tdev, int index) {
 				// fail
 			}
 		} else {
+			Log("tun_write=================== raw data");
 			break;
 		}
 	}
@@ -919,6 +931,12 @@ main(int argc, char *argv[]) {
 	struct tundev tdev;
 	memset(&tdev, 0, sizeof(tdev));
 
+	time_t t;
+	time(&t);
+	char buff[256];
+	sprintf(buff, "log%ld.txt", t);
+	logFP = fopen(buff, "w+");
+
 	while ((option = getopt(argc, argv, "i:v:t:r:l:p:k:d::e:")) > 0) {
 		INADDR addr;
 		switch(option) {
@@ -1001,6 +1019,8 @@ main(int argc, char *argv[]) {
 	}
 
 	start(&tdev);
+
+	fclose(logFP);
 
 	return 0;
 }

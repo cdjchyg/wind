@@ -26,8 +26,8 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
     private static final int BUFF_SIZE = 2000;
     private static final int MAX_RECV_SIZE = BUFF_SIZE - HEADER_LEN;
 
-    private static final byte XOR_MAGIC_1 = (byte)220;
-    private static final byte XOR_MAGIC_2 = (byte)171;
+    private static final byte XOR_MAGIC_1 = (byte)120;
+    private static final byte XOR_MAGIC_2 = (byte)71;
 
 
     private Handler mHandler;
@@ -193,15 +193,14 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
                     System.arraycopy(packetArray, 0, outPacketArray, 1, length);
                     ++length;
 
-//                    if (length > 1400)
-//                        Log.i(TAG, "send data Len:" + length);
-
                     xorData(outPacketArray, length, XOR_MAGIC_1, XOR_MAGIC_2);
                     outPacket.limit(length);
                     setpRecord = "Begin tun to net write";
                     socket.write(outPacket);
                     packet.clear();
                     outPacket.clear();
+
+                    Log.i(TAG, "send data Len:" + length);
                 }
 
                 length = socket.read(packet);
@@ -219,6 +218,8 @@ public class ToyVpnService extends VpnService implements Runnable, Handler.Callb
 
                             setpRecord = "Begin net to tun write";
                             out.write(packetArray, 1, length);
+
+                            Log.i(TAG, "write data Len:" + length);
                         }
                         else
                         {
